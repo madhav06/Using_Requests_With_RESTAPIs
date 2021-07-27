@@ -1,4 +1,5 @@
 import requests
+from requests import exceptions
 from requests.models import HTTPBasicAuth
 response = requests.get("http://api.open-notify.org/astros.json")
 print(response)
@@ -33,7 +34,7 @@ session = requests.Session()
 session.headers.update({'Authorization': 'Bearer {access_token}'})
 response = session.get('https://httpbin.org/headers')
 
-# CHeck for HTTP Errors With Python Requests
+# Check for HTTP Errors With Python Requests
 response = requests.get("http://api.open-notify.org/astros.json")
 if (response.status_code == 200):
     print("The request was success!")
@@ -41,6 +42,14 @@ if (response.status_code == 200):
 elif (response.status_code == 404):
     print("Result not found!")
     # code here will react to failed requests
+
+# Alternative way to check for HTTPError
+try:
+    response = requests.get('http://api.open-notify.org/astros.json', timeout=5)
+    response.raise_for_status()
+    # code will run if request is successful
+except requests.exceptions.HTTPError as error:
+    print(error)
 
 # Handling TooManyRedirects
 try:
@@ -50,9 +59,16 @@ try:
 except requests.exceptions.TooManyRedirects as error:
     print(error)
 
-# ConnectionError
+# Handle ConnectionError
 try:
     response = requests.get('http://api.open-notify.org/astros.json')
     # code here will only run if the request is successful
 except requests.ConnectionError as error:
+    print(error)
+
+# Handle Timeout
+try:
+    response = requests.get('http://api.open-notify.org/astros.json', timeout=0.00001)
+    # code will run if request is successful
+except requests.Timeout as error:
     print(error)
